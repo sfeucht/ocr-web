@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Using OCR Heads to Verbalize Image Semantics</title>
+    <meta charset="utf-8"> 
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description"
+        content="Webpage for Using OCR Heads to Verbalize Image Semantics (Feucht et al., 2026)" />
+    <meta property="og:title" content="Using OCR Heads to Verbalize Image Semantics" />
+    <meta property="og:url" content="https://ocr.baulab.info/" />
+    <meta property="og:image" content="https://ocr.baulab.info/images/figure1_website.png" />
+    <meta property="og:description" content="
+    ">
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Using OCR Heads to Verbalize Image Semantics" />
+    <meta name="twitter:description"
+        content="Webpage for Using OCR Heads to Verbalize Image Semantics (Feucht et al., 2026)." />
+    <meta name="twitter:image" content="https://ocr.baulab.info/images/figure1_website.png" />
+    <link rel="icon" href="favicon.ico?v=2" type="image/x-icon"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/imagfes/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Math&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+
+    <style>
+        .relatedthumb {
+            float: left;
+            width: 200px;
+            margin: 3px 10px 7px 0;
+        }
+
+        .relatedblock {
+            clear: both;
+            display: inline-block;
+        }
+
+        .bold-sc {
+            font-variant: small-caps;
+            font-weight: bold;
+        }
+
+        .cite,
+        .citegroup {
+            margin-bottom: 8px;
+        }
+
+        /* ---- interactive demo ---- */
+        .dm-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+        .dm-tab {
+            padding: 5px 11px; font-size: 13px; cursor: pointer;
+            border: 1px solid #ccc; border-radius: 5px; background: #f7f7f7;
+        }
+        .dm-tab:hover { background: #ededed; }
+        .dm-tab.active { background: #3b5bfd; border-color: #3b5bfd; color: #fff; }
+        #dmModelTabs .dm-tab { font-weight: 600; }
+        #dmLayerTabs .dm-tab.active { background: #7e57c2; border-color: #7e57c2; }
+        .dm-layout { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+        .dm-image { position: relative; flex: 0 0 420px; }
+        .dm-image img { width: 420px; display: block; border-radius: 6px; border: 1px solid #ccc; }
+        .dm-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: grid; }
+        .dm-cell { border: 1px solid rgba(0,0,0,0.07); cursor: pointer; }
+        .dm-cell:hover { background: rgba(59,91,253,0.18); }
+        .dm-cell.active { border: 2px solid #ffc107; background: rgba(255,193,7,0.35); }
+        .dm-panels { flex: 1 1 380px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .dm-panel { border: 1px solid #ddd; border-radius: 6px; padding: 10px; background: #fafafa; }
+        .dm-panel h4 { font-size: 14px; margin: 0 0 8px 0; }
+        .dm-panel.verbal h4 { color: #3b5bfd; }
+        .dm-panel.logit h4 { color: #b8860b; }
+        .dm-result { background: #fff; border: 1px solid #eee; border-radius: 4px;
+                     padding: 4px 7px; margin-bottom: 4px; font-size: 13px; }
+        .dm-word { font-weight: 700; }  /* color set inline, shaded by probability */
+        .dm-translation { color: #777; font-size: 12px; margin-left: 5px; }
+        .dm-score { color: #999; font-size: 11px; margin-left: 6px; }
+        .dm-hint { color: #777; font-size: 12px; margin-top: 8px; }
+
+        :target {
+            background-color: yellow;
+        }
+    </style>
+</head>
+
+<body class="nd-docs">
+    <div class="nd-pageheader">
+        <div class="container">
+            <h1 class="lead">
+                <nobr class="widenobr">Using OCR Heads to Verbalize Image Semantics
+                </nobr>
+            </h1>
+            <address>
+                <nobr><a href="https://sfeucht.github.io/" target="_blank">Sheridan Feucht</a>,</nobr>
+                <nobr><a href="https://bennokrojer.com" target="_blank">Benno Krojer</a>,</nobr>
+                <nobr><a href="" target="_blank">Sarah Wang</a>,</nobr>
+                <nobr><a href="" target="_blank">Henry Abrahamsen</a>,</nobr>
+                <nobr><a href="https://www.byronwallace.com/" target="_blank">Byron C. Wallace</a>,</nobr>
+                <nobr><a href="https://baulab.info/" target="_blank">David Bau</a></nobr><br>
+                <nobr><a href="https://khoury.northeastern.edu/" target="_blank">Northeastern University</a></nobr>
+            </address>
+        </div>
+    </div><!-- end nd-pageheader -->
+
+    <div class="container">
+        <div class="row justify-content-center" style="margin-bottom: 20px">
+        </div>
+        <div class="row justify-content-center text-center">
+
+            <p>
+                <a href="" class="d-inline-block p-3 align-top" target="_blank">
+                    <img height="100" width="78" src="images/arxiv_thumb.png" style="border:1px solid; margin: 0 38px;"
+                        alt="ArXiv Paper thumbnail" data-nothumb="">
+                    <br>ArXiv Paper</a>
+                <a href="" class="d-inline-block p-3 align-top" target="_blank">
+                    <img height="100" width="78" src="images/code_thumb.png" style="border:1px solid; margin: 0 38px;"
+                        alt="Github code thumbnail" data-nothumb="">
+                    <br>GitHub<br>Source Code<br>
+                </a>
+                <a href="#demo" class="d-inline-block p-3 align-top" target="_blank">
+                    <img height="63" width="100" src="images/demo_thumb.png" style="border:1px solid; margin: 0 38px;"
+                        alt="Demo thumbnail" data-nothumb="">
+                    <br>Verbalization Lens Demo<br>
+                </a>
+                <!-- <a href="/colm_poster.pdf" class="d-inline-block p-3 align-top" target="_blank">
+                    <img height="56" width="100" src="images/poster-thumb.png" style="border:1px solid; margin: 0 38px;"
+                        alt="Poster thumbnail" data-nothumb="">
+                    <br>COLM Poster<br>
+                </a> -->
+            </p>
+            
+            <br>
+            <div class="card" style="max-width: 1020px;">
+                <div class="card-block">
+                <h3>How do VLMs map from Pixels to Semantics?</h3>
+                <p>
+                    In this work, we identify attention heads in vision-language models (VLMs) that are responsible for "reading" text in images. We find a set of attention heads that, e.g., attend to the word "bike" when prompted to transcribe the text in the below image. 
+
+                    Surprisingly, if you redirect these heads to attend to 
+                </p>
+                </div><!--card-block-->
+                </div><!--card-->
+
+        </div><!--row-->
+
+        <div class="row">
+            <div class="col">
+                <h2 id="demo">Interactive Demo: Click Around Real Images</h2>
+
+                <p>We've pre-computed verbalization lens results for a few natural images, shown below.
+                Each square in an image corresponds to an image token passed to the VLM: pick a model, an
+                image, and a layer, then click a square to see what that image token decodes to under our
+                verbalization lens compared to a raw logit lens.
+                TODO: You can also check out NDIF to run our approach on images of your choice!</p>
+
+                <div class="dm-tabs" id="dmModelTabs"></div>
+                <div class="dm-tabs" id="dmImgTabs"></div>
+                <div class="dm-tabs" id="dmLayerTabs"></div>
+                <div class="dm-layout">
+                    <div class="dm-image" id="dmImage"></div>
+                    <div class="dm-panels">
+                        <div class="dm-panel verbal"><h4>Verbalization Lens</h4><div id="dmVerbal"></div></div>
+                        <div class="dm-panel logit"><h4>Logit Lens</h4><div id="dmLogit"></div></div>
+                    </div>
+                </div>
+                <p class="dm-hint">Scores are softmax probabilities over the model's vocabulary; words are shaded by probability (darker = higher).</p>
+
+                
+                <!-- <figure class="center_image">
+                    <img src="images/concept_lens.png" class="bigfig">
+                    <figcaption>Concept lens outputs for Llama-2-7b. We multiply the hidden state for inals at every layer by our concept lens matrix before projecting to token space. Applying this lens reveals the semantics of the token <tt>inals</tt>, which we can see depends on the context.</figcaption>
+                </figure> -->
+                
+                <h2>Finding Verbalization Heads</h2>
+
+                <h2>Editing Image Perception</h2>
+
+                <h2 id="related-work">Related Work</h2>
+
+                <p class="citation"><a href="https://arxiv.org/pdf/2602.00462"><img src="images/latentlens.png" alt="">Benno Krojer, Shravan Nayak, Oscar Mañas, Vaibhav Adlakha, Desmond Elliott, Siva Reddy, Marius Mosbach. LatentLens: Revealing Highly Interpretable Visual Tokens in LLMs. 2026.</a><br>
+                This work provides a different way of visualizing image tokens by measuring cosine similarity with latent in-context representations of natural language (e.g., image captions). 
+                </p>      
+                
+                <p class="citation"><a href="https://dualroute.baulab.info"><img src="images/dualroute.jpg" alt="">Sheridan Feucht, Eric Todd, Byron C. Wallace, David Bau. The Dual-Route Model of Induction. 2025.</a><br>
+                We adapt the "Concept Lens" method from this prior work. While they used this approach to understand <i>concept induction heads</i> in LLMs, we apply it to image tokens in VLMs.
+                </p>                
+
+                <p class="citation"><a href=""><img src="images/" alt="">Authors, authors. Title. Year.</a><br>
+                <b>Notes:</b> 
+                </p>      
+
+                <p class="citation"><a href=""><img src="images/" alt="">Authors, authors. Title. Year.</a><br>
+                <b>Notes:</b> 
+                </p>                
+                
+
+	
+                <h2>How to cite</h2>
+
+                <p>This work is currently under review. It can be cited as follows:
+                </p>
+
+                <div class="card">
+                    <h3 class="card-header">bibliography</h3>
+                    <div class="card-block"> 
+                        <p style="text-indent: -3em; margin-left: 3em;" class="card-text clickselect">
+                            Sheridan Feucht, Benno Krojer, Sarah Wang, Henry Abrahamsen, Byron Wallace, and David Bau. "<i>Using OCR Heads to Verbalize Image Semantics.</i>" arXiv:TODO (2026).</nobr> 
+                        </p>
+                    </div>
+                    <h3 class="card-header">bibtex</h3>
+                    <div class="card-block">
+                        <pre class="card-text clickselect"
+                        >@article{
+    feucht2026ocr,
+    title={Using OCR Heads to Verbalize Image Semantics},
+    author={Sheridan Feucht and Benno Krojer and Sarah Wang and Henry Abrahamsen and Byron Wallace and David Bau},
+    journal={arXiv preprint},
+    year={2026},
+    url={https://arxiv.org/abs/TODO}
+}</pre>
+                    </div>
+                </div>
+
+            </div> <!--col -->    
+        </div> <!--row -->
+    </div> <!-- container -->
+
+    
+
+    <footer class="nd-pagefooter">
+        <div class="row">
+            <div class="col-6 col-md text-center">
+                <a href="https://baulab.info/">About the Bau Lab</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="demo_data.js"></script>
+    <script src="demo.js"></script>
+
+</body>
+
+</html>
+
