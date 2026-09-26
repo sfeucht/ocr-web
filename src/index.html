@@ -58,32 +58,45 @@
 
         /* ---- interactive demo ---- */
         .dm-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+        /* #5FA39B is the site header teal (.nd-pageheader in style.css) */
         .dm-tab {
             padding: 5px 11px; font-size: 13px; cursor: pointer;
             border: 1px solid #ccc; border-radius: 5px; background: #f7f7f7;
         }
         .dm-tab:hover { background: #ededed; }
-        .dm-tab.active { background: #3b5bfd; border-color: #3b5bfd; color: #fff; }
+        .dm-tab.active { background: #5FA39B; border-color: #5FA39B; color: #fff; }
         #dmModelTabs .dm-tab { font-weight: 600; }
-        #dmLayerTabs .dm-tab.active { background: #7e57c2; border-color: #7e57c2; }
         .dm-layout { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
-        .dm-image { position: relative; flex: 0 0 420px; }
-        .dm-image img { width: 420px; display: block; border-radius: 6px; border: 1px solid #ccc; }
+        .dm-image { position: relative; flex: 0 0 340px; }
+        .dm-image img { width: 340px; display: block; border-radius: 6px; border: 1px solid #ccc; }
         .dm-grid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: grid; }
         .dm-cell { border: 1px solid rgba(0,0,0,0.07); cursor: pointer; }
-        .dm-cell:hover { background: rgba(59,91,253,0.18); }
-        .dm-cell.active { border: 2px solid #ffc107; background: rgba(255,193,7,0.35); }
-        .dm-panels { flex: 1 1 380px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .dm-panel { border: 1px solid #ddd; border-radius: 6px; padding: 10px; background: #fafafa; }
-        .dm-panel h4 { font-size: 14px; margin: 0 0 8px 0; }
-        .dm-panel.verbal h4 { color: #3b5bfd; }
-        .dm-panel.logit h4 { color: #b8860b; }
-        .dm-result { background: #fff; border: 1px solid #eee; border-radius: 4px;
-                     padding: 4px 7px; margin-bottom: 4px; font-size: 13px; }
+        .dm-cell:hover { background: rgba(95,163,155,0.25); }
+        .dm-cell.active { border: 2px solid #4fe7d5; background: rgba(95,163,155,0.4); }
+        /* layer-by-layer table: one row per layer, two lens columns */
+        .dm-table {
+            flex: 1 1 520px; display: grid;
+            grid-template-columns: auto 1fr 1fr; gap: 1px;
+            background: #e4e4e4; border: 1px solid #ddd; border-radius: 6px; overflow: hidden;
+        }
+        .dm-table > div { background: #fff; padding: 6px 9px; }
+        .dm-head { font-size: 13px; font-weight: 700; background: #f4f4f4 !important; }
+        .dm-head.verbal { color: #3b7f77; }  /* darkened header teal, for contrast on white */
+        .dm-head.logit { color: #b8860b; }
+        .dm-layer {
+            font-size: 12px; color: #666; white-space: nowrap;
+            background: #f9f9f9 !important; display: flex; align-items: center;
+        }
+        .dm-lens { display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; }
+        .dm-lens.verbal { border-left: 3px solid rgba(95,163,155,0.6); }
+        .dm-lens.logit { border-left: 3px solid rgba(184,134,11,0.35); }
+        .dm-result {
+            border: 1px solid #eee; border-radius: 4px; padding: 2px 6px;
+            font-size: 13px; white-space: nowrap;
+        }
         .dm-word { font-weight: 700; }  /* color set inline, shaded by probability */
-        .dm-translation { color: #777; font-size: 12px; margin-left: 5px; }
-        .dm-score { color: #999; font-size: 11px; margin-left: 6px; }
-        .dm-hint { color: #777; font-size: 12px; margin-top: 8px; }
+        .dm-translation { color: #999; font-size: 11px; margin-left: 4px; }
+        .dm-hint { color: #777; font-size: 12px; margin: 2px 0 10px; }
 
         :target {
             background-color: yellow;
@@ -101,8 +114,8 @@
             <address>
                 <nobr><a href="https://sfeucht.github.io/" target="_blank">Sheridan Feucht</a>,</nobr>
                 <nobr><a href="https://bennokrojer.com" target="_blank">Benno Krojer</a>,</nobr>
-                <nobr><a href="" target="_blank">Sarah Wang</a>,</nobr>
-                <nobr><a href="" target="_blank">Henry Abrahamsen</a>,</nobr>
+                <nobr><a href="https://www.linkedin.com/in/sarahfwang/" target="_blank">Sarah Wang</a>,</nobr>
+                <nobr><a href="https://henryabrahamsen.com/" target="_blank">Henry Abrahamsen</a>,</nobr>
                 <nobr><a href="https://www.byronwallace.com/" target="_blank">Byron C. Wallace</a>,</nobr>
                 <nobr><a href="https://baulab.info/" target="_blank">David Bau</a></nobr><br>
                 <nobr><a href="https://khoury.northeastern.edu/" target="_blank">Northeastern University</a></nobr>
@@ -116,7 +129,7 @@
         <div class="row justify-content-center text-center">
 
             <p>
-                <a href="" class="d-inline-block p-3 align-top" target="_blank">
+                <a href="https://arxiv.org/pdf/2609.18823" class="d-inline-block p-3 align-top" target="_blank">
                     <img height="100" width="78" src="images/arxiv_thumb.png" style="border:1px solid; margin: 0 38px;"
                         alt="ArXiv Paper thumbnail" data-nothumb="">
                     <br>ArXiv Paper</a>
@@ -140,11 +153,13 @@
             <br>
             <div class="card" style="max-width: 1020px;">
                 <div class="card-block">
-                <h3>How do VLMs map from Pixels to Semantics?</h3>
+                <h3>Mapping from Pixels to Words</h3>
                 <p>
-                    In this work, we identify attention heads in vision-language models (VLMs) that are responsible for "reading" text in images. We find a set of attention heads that, e.g., attend to the word "bike" when prompted to transcribe the text in the below image. 
-
-                    Surprisingly, if you redirect these heads to attend to 
+                    In this work, we identify attention heads in vision-language models (VLMs) that are responsible for OCR, which is the task of "reading" text in images. But these heads turn out to be useful for visualizing semantics of image tokens in general!
+                    <figure class="center_image">
+                    <img src="images/figure1.png" class="bigfig">
+                    </figure> 
+                    Specifically, we find a set of attention heads in Qwen3-VL-8B-Instruct that, e.g., attend to the word "bike" when prompted to transcribe a word. If we redirect the attention patterns of these heads to different parts of the image, the model will actually verbalize more general information, like "feathers." We use this surprising finding to create a new method that helps us visualize how a VLM might understand the <i>semantics</i> of a particular image, called <b>verbalization lens</b>.
                 </p>
                 </div><!--card-block-->
                 </div><!--card-->
@@ -155,53 +170,56 @@
             <div class="col">
                 <h2 id="demo">Interactive Demo: Click Around Real Images</h2>
 
-                <p>We've pre-computed verbalization lens results for a few natural images, shown below.
-                Each square in an image corresponds to an image token passed to the VLM: pick a model, an
-                image, and a layer, then click a square to see what that image token decodes to under our
-                verbalization lens compared to a raw logit lens.
-                TODO: You can also check out NDIF to run our approach on images of your choice!</p>
+                <p>Here are some real examples of <b>verbalization lens</b> pre-computed for a few natural images. 
+                Each square in an image corresponds to a single image token passed to the VLM. We can apply our lens to any of these tokens at any hidden layer. Compared to a naive logit lens baseline, you can see that our approach reveals information about a wide range of image tokens starting from the very first hidden layer. Interestingly, we find that Qwen models have much more Chinese labels, likely because they are Chinese models. </p>
 
                 <div class="dm-tabs" id="dmModelTabs"></div>
                 <div class="dm-tabs" id="dmImgTabs"></div>
-                <div class="dm-tabs" id="dmLayerTabs"></div>
+                <p class="dm-hint">Words are shaded by their softmax probability (darker = higher). Hover over a word to show the exact probability.</p>
                 <div class="dm-layout">
                     <div class="dm-image" id="dmImage"></div>
-                    <div class="dm-panels">
-                        <div class="dm-panel verbal"><h4>Verbalization Lens</h4><div id="dmVerbal"></div></div>
-                        <div class="dm-panel logit"><h4>Logit Lens</h4><div id="dmLogit"></div></div>
-                    </div>
+                    <div class="dm-table" id="dmTable"></div>
                 </div>
-                <p class="dm-hint">Scores are softmax probabilities over the model's vocabulary; words are shaded by probability (darker = higher).</p>
 
-                
-                <!-- <figure class="center_image">
-                    <img src="images/concept_lens.png" class="bigfig">
-                    <figcaption>Concept lens outputs for Llama-2-7b. We multiply the hidden state for inals at every layer by our concept lens matrix before projecting to token space. Applying this lens reveals the semantics of the token <tt>inals</tt>, which we can see depends on the context.</figcaption>
-                </figure> -->
                 
                 <h2>Finding Verbalization Heads</h2>
 
+                How do we actually find these attention heads? We generate a dataset of images with random words in them, and then prompt a VLM to "Transcribe the word in this image." This is a simple optical character recognition (OCR) task. Then, we look for attention heads at the last token position that are promoting the given word. Specifically, we take the output of each attention head and use <a href="https://www.lesswrong.com/posts/AcKRB8wDpdaN6v6ru/interpreting-gpt-the-logit-lens">logit lens</a> to obtain the probability of the desired word in that attention head's output. Averaging these probabilities across many images, we can obtain an "OCR score" for each attention head. If we then progressively knock out the top percentage of heads based on these scores, we find that they seem to comprise about 10% of attention heads across the four models we study. 
+                <br>
+                <figure class="center_image">
+                    <img src="images/selecting1.png" class="smallfig"> <img src="images/selecting2.png" class="smallfig">
+                </figure> 
+
                 <h2>Editing Image Perception</h2>
+
+                To show that our lens is reading from features that causally effect the model's outputs, we edit within the subspace read by these verbalization heads, and find that these edits affect model descriptions of images. For example, we can "edit" an image representation to cause Qwen to describe a photo of an ant as an iPod. On a high level, our approach uses the <i>inverse</i> of our verbalization lens to identify directions in activation space that the model decodes as a particular token. We can then subtract the latent vector that corresponds to "ant" from the image, and add in the latent vector corresponding to "iPod".
+
+                <figure class="center_image">
+                    <img src="images/editing.png" class="bigfig">
+                </figure> 
 
                 <h2 id="related-work">Related Work</h2>
 
+                <p class="citation"><a href="https://www.lesswrong.com/posts/AcKRB8wDpdaN6v6ru/interpreting-gpt-the-logit-lens"><img src="images/logitlens.png" alt="">Nostalgebraist. interpreting GPT: the logit lens. 2020.</a><br>
+                This post first introduced the idea of <i>logit lens</i>, applying the LLM decoder head to intermediate hidden states. They found that it revealed a surprising amount of intermediate information about GPT's internal computations. 
+                </p> 
+
+                <p class="citation"><a href="https://arxiv.org/pdf/2410.02762"><img src="images/jiang.png" alt="">Nick Jiang, Anish Kachinthaya, Suzie Petryk, Yossi Gandelsman. Interpreting and Editing Vision-Language Representations to Mitigate Hallucinations. 2025.</a><br>
+                Along with Neo et al. (2025), this paper first applied logit lens to image tokens in VLMs to understand their alignment with language. The authors showed that they could reduce hallucinations by subtracting directions corresponding to hallucinated objects from image tokens, similar to our editing approach. We use similar evaluations to theirs in our Section 3.
+                </p>    
+
+                <p class="citation"><a href="https://arxiv.org/pdf/2410.07149"><img src="images/neo.png" alt="">Clement Neo, Luke Ong, Philip Torr, Mor Geva, David Krueger, Fazl Barez. Towards Interpreting Visual Information Processing in Vision-Language Models. 2025.</a><br>
+                Along with Jiang et al., this paper made the first foray into applying logit lens to image tokens. They show interesting qualitative examples of logit lens results for image tokens in late layers (whereas our method works across all layers).
+                </p>    
+  
                 <p class="citation"><a href="https://arxiv.org/pdf/2602.00462"><img src="images/latentlens.png" alt="">Benno Krojer, Shravan Nayak, Oscar Mañas, Vaibhav Adlakha, Desmond Elliott, Siva Reddy, Marius Mosbach. LatentLens: Revealing Highly Interpretable Visual Tokens in LLMs. 2026.</a><br>
-                This work provides a different way of visualizing image tokens by measuring cosine similarity with latent in-context representations of natural language (e.g., image captions). 
-                </p>      
+                This work provides a different way of visualizing image tokens by measuring cosine similarity with latent in-context representations of natural language (e.g., image captions). This approach results in much more interpretable image token labels, and we find is comparable to our method. 
+                </p>
                 
                 <p class="citation"><a href="https://dualroute.baulab.info"><img src="images/dualroute.jpg" alt="">Sheridan Feucht, Eric Todd, Byron C. Wallace, David Bau. The Dual-Route Model of Induction. 2025.</a><br>
-                We adapt the "Concept Lens" method from this prior work. While they used this approach to understand <i>concept induction heads</i> in LLMs, we apply it to image tokens in VLMs.
+                We adapt the "Concept Lens" method from our own prior work. While they used this approach to understand <i>concept induction heads</i> in LLMs, here we apply it to image tokens in VLMs using a different set of attention heads.
                 </p>                
-
-                <p class="citation"><a href=""><img src="images/" alt="">Authors, authors. Title. Year.</a><br>
-                <b>Notes:</b> 
-                </p>      
-
-                <p class="citation"><a href=""><img src="images/" alt="">Authors, authors. Title. Year.</a><br>
-                <b>Notes:</b> 
-                </p>                
-                
-
+     
 	
                 <h2>How to cite</h2>
 
@@ -212,7 +230,7 @@
                     <h3 class="card-header">bibliography</h3>
                     <div class="card-block"> 
                         <p style="text-indent: -3em; margin-left: 3em;" class="card-text clickselect">
-                            Sheridan Feucht, Benno Krojer, Sarah Wang, Henry Abrahamsen, Byron Wallace, and David Bau. "<i>Using OCR Heads to Verbalize Image Semantics.</i>" arXiv:TODO (2026).</nobr> 
+                            Sheridan Feucht, Benno Krojer, Sarah Wang, Henry Abrahamsen, Byron Wallace, and David Bau. "<i>Using OCR Heads to Verbalize Image Semantics.</i>" arXiv:2609.18823 (2026).</nobr> 
                         </p>
                     </div>
                     <h3 class="card-header">bibtex</h3>
@@ -221,10 +239,10 @@
                         >@article{
     feucht2026ocr,
     title={Using OCR Heads to Verbalize Image Semantics},
-    author={Sheridan Feucht and Benno Krojer and Sarah Wang and Henry Abrahamsen and Byron Wallace and David Bau},
+    author={Sheridan Feucht and Benno Krojer and Sarah Wang and Henry Abrahamsen and Byron C. Wallace and David Bau},
     journal={arXiv preprint},
     year={2026},
-    url={https://arxiv.org/abs/TODO}
+    url={https://arxiv.org/abs/2609.18823}
 }</pre>
                     </div>
                 </div>
@@ -232,8 +250,6 @@
             </div> <!--col -->    
         </div> <!--row -->
     </div> <!-- container -->
-
-    
 
     <footer class="nd-pagefooter">
         <div class="row">

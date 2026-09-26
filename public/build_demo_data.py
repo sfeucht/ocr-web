@@ -21,12 +21,16 @@ KEEP_MODELS = [
     "Molmo2-O-7B",
 ]
 
+# Which model tab is selected when the page loads. Must be one of KEEP_MODELS;
+# the tab order above is unaffected.
+DEFAULT_MODEL = "Qwen3-VL-8B-Instruct"
+
 # Images to show, in tab order, as {filename: display label}.
 # All 11 images from the export are listed; comment out the ones you don't
 # want on the website and re-run this script. Fewer images = smaller
 # demo_data.js = faster page load.
 KEEP_IMAGES = {
-    "pathway.png": "\"PATHWAY ENDS\" sign",
+    "pathway.png": "Calgary road",
     "COCO_val2014_000000019036.jpg": "Pizza kitchen",
     # "COCO_val2014_000000022929.jpg": "Baby and teddy bear",
     "COCO_val2014_000000035594.jpg": "Elephants",
@@ -53,29 +57,29 @@ KEEP_IMAGES = {
 DEFAULT_PATCHES = {
     "Qwen3-VL-2B-Instruct": {
         "pathway.png": (1, 3),                           # "PATHWAY ENDS" sign, grid 16x21
-        "COCO_val2014_000000019036.jpg": (6, 10),         # Pizza kitchen, grid 13x20
-        "COCO_val2014_000000035594.jpg": (7, 10),         # Elephants, grid 15x20
-        "COCO_val2014_000000359540.jpg": (6, 10),         # Baseball batter, grid 13x20
+        "COCO_val2014_000000019036.jpg": (10, 16),         # Pizza kitchen, grid 13x20
+        "COCO_val2014_000000035594.jpg": (3, 6),         # Elephants, grid 15x20
+        "COCO_val2014_000000359540.jpg": (5, 7),         # Baseball batter, grid 13x20
         "COCO_val2014_000000493610.jpg": (6, 8),          # Crowded truck, grid 12x16
     },
     "Qwen3-VL-8B-Instruct": {
         "pathway.png": (8, 10),                           # "PATHWAY ENDS" sign, grid 16x21
-        "COCO_val2014_000000019036.jpg": (6, 10),         # Pizza kitchen, grid 13x20
-        "COCO_val2014_000000035594.jpg": (7, 10),         # Elephants, grid 15x20
-        "COCO_val2014_000000359540.jpg": (6, 10),         # Baseball batter, grid 13x20
+        "COCO_val2014_000000019036.jpg": (10, 16),         # Pizza kitchen, grid 13x20
+        "COCO_val2014_000000035594.jpg": (3, 6),         # Elephants, grid 15x20
+        "COCO_val2014_000000359540.jpg": (5, 7),         # Baseball batter, grid 13x20
         "COCO_val2014_000000493610.jpg": (6, 8),          # Crowded truck, grid 12x16
     },
     "llava-v1.6-34b-hf": {
         "pathway.png": (12, 12),                          # "PATHWAY ENDS" sign, grid 24x24
-        "COCO_val2014_000000019036.jpg": (12, 12),        # Pizza kitchen, grid 24x24
-        "COCO_val2014_000000035594.jpg": (12, 12),        # Elephants, grid 24x24
-        "COCO_val2014_000000359540.jpg": (12, 12),        # Baseball batter, grid 24x24
+        "COCO_val2014_000000019036.jpg": (11, 10),        # Pizza kitchen, grid 24x24
+        "COCO_val2014_000000035594.jpg": (6, 15),        # Elephants, grid 24x24
+        "COCO_val2014_000000359540.jpg": (10, 9),        # Baseball batter, grid 24x24
         "COCO_val2014_000000493610.jpg": (12, 12),        # Crowded truck, grid 24x24
     },
     "Molmo2-O-7B": {
-        "pathway.png": (7, 7),                            # "PATHWAY ENDS" sign, grid 14x14
-        "COCO_val2014_000000019036.jpg": (7, 7),          # Pizza kitchen, grid 14x14
-        "COCO_val2014_000000035594.jpg": (7, 7),          # Elephants, grid 14x14
+        "pathway.png": (1, 2),                            # "PATHWAY ENDS" sign, grid 14x14
+        "COCO_val2014_000000019036.jpg": (11, 11),          # Pizza kitchen, grid 14x14
+        "COCO_val2014_000000035594.jpg": (9, 5),          # Elephants, grid 14x14
         "COCO_val2014_000000359540.jpg": (7, 7),          # Baseball batter, grid 14x14
         "COCO_val2014_000000493610.jpg": (7, 7),          # Crowded truck, grid 14x14
     },
@@ -140,6 +144,9 @@ def main():
             out.append([used[w], r[1]])
         return out
 
+    if DEFAULT_MODEL not in KEEP_MODELS:
+        raise SystemExit("DEFAULT_MODEL %r is not in KEEP_MODELS" % DEFAULT_MODEL)
+
     models = {}
     for m in KEEP_MODELS:
         if m not in src_models:
@@ -181,6 +188,7 @@ def main():
         f.write("const DEMO_WORDS = %s;\n" % dump(words))
         f.write("const DEMO_TRANSLATIONS = %s;\n" % dump(trans))
         f.write("const DEMO_MODELS = %s;\n" % dump(models))
+        f.write("const DEMO_DEFAULT_MODEL = %s;\n" % dump(DEFAULT_MODEL))
     print("wrote %s (%.1f MB), %d words" % (
         OUTPUT, os.path.getsize(OUTPUT) / 1e6, len(words)))
 
