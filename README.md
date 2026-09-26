@@ -1,2 +1,3 @@
-# dualroute-web
-Code for https://dualroute.baulab.info
+# ocr-web
+
+Website for https://ocr.baulab.info.
