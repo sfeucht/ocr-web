@@ -34,6 +34,15 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '\\(', right: '\\)', display: false}
+        ]});"></script>
+
     <style>
         .relatedthumb {
             float: left;
@@ -185,13 +194,49 @@
                     <img src="images/selecting1.png" class="smallfig"> <img src="images/selecting2.png" class="smallfig">
                 </figure> 
 
+                <h2>Creating our Lens</h2>
+
+                Our Figure 1 shows what happens when we literally change the attention maps of all verbalization heads to be concentrated on a single token, and then run a full forward pass for Qwen3-VL-8B-Instruct. However, in practice, we actually do something more efficient. Repurposing a method from our <a href="https://dualroute.baulab.info/">previous work</a> on language-only models, we collapse the weights of all of these attention heads into a single matrix \(\mathbf{L} \in\mathbb{R}^{d_{\text{model}}\times d_{\text{model}}}\), which looks like:
+
+                \[ 
+                \mathbf{L} = \sum_{(l,h)\in\mathcal{H}} \mathbf{W}_O^{(l,h)}\mathbf{W}_V^{(l,h)}
+                \]
+
+                where \(\mathbf{W}_O\in\mathbb{R}^{d_{\text{model}}\times d_{\text{head}}},\mathbf{W}_V\in\mathbb{R}^{d_{\text{head}}\times d_{\text{model}}}\) are the output and value weight matrices for a particular attention head  \(h\) at layer \(l\), and \(\mathcal{H}\) is the set of verbalization heads we study in this work. 
+
+                But why are we multiplying these weights together? <a href="https://transformer-circuits.pub/2021/framework/index.html#analyzing-a-two-layer-model">Elhage et al. (2021)</a> refer to \(\mathbf{W}_O^{(l,h)}\mathbf{W}_V^{(l,h)}\) as the "OV matrix" for a given attention head. The intuition for one of these matrices is that it determines exactly what head \((l,h)\) will write when attending to a particular hidden state. It lets us ignore the attention pattern of the head and focus on what that head actually reads and writes.
+
+                <br><br>
+                
+                So, what does it mean to sum together these OV matrices? 
+                Let's say that we have a particular residual stream state \(\mathbf{h}^{(l-1)}\in\mathbb{R}^{d_{model}} \) at layer \(l-1\), and we decide to make all of the \(n\) attention heads at layer \(l\) fully attend to only this hidden state. Then, the contribution of all of these attention heads will look something like this (dropping norms):
+
+                \[
+                \mathbf{W}_O^{(l,0)}\mathbf{W}_V^{(l,0)}\mathbf{h}^{(l-1)} + \mathbf{W}_O^{(l,1)}\mathbf{W}_V^{(l,1)}\mathbf{h}^{(l-1)} + ... \mathbf{W}_O^{(l,n)}\mathbf{W}_V^{(l,n)}\mathbf{h}^{(l-1)}
+                \]
+
+                But then, we can see that this is equivalent to just summing together all the OV matrices first, and multiplying by \(\mathbf{h}^{(l-1)}\) only once.
+
+                \[
+                (\mathbf{W}_O^{(l,0)}\mathbf{W}_V^{(l,0)} + \mathbf{W}_O^{(l,1)}\mathbf{W}_V^{(l,1)} + ... \mathbf{W}_O^{(l,n)}\mathbf{W}_V^{(l,n)})\mathbf{h}^{(l-1)}
+                \]
+
+                Thus, adding together all of these matrices is actually very natural, at least when heads are in the same layer. The one wrinkle is that we actually make the choice to sum together OV matrices for heads across different layers. This means that, in effect, we are allowing heads at e.g., layer 24 attend to hidden states from layer 0. While this may seem odd, it seems to work well in practice, which corroborates evidence from prior work showing that layers are somewhat interchangeable in LLMs (<a href="https://functions.baulab.info">Todd et al., 2024</a>, <a href="https://arxiv.org/pdf/2406.19384">Lad et al., 2025</a>). 
+                
+                <br><br>
+                Once we have this matrix \(\mathbf{L}\), we can apply it to any hidden state \(\mathbf{h}\) to reveal what all the attention heads in \(\mathcal{H}\) would output if they were to fully attend to that state. We then simply apply logit lens to \(\mathbf{Lh}\) instead of "raw" logit lens on \(\mathbf{h}\) to obtain the results shown in this work. 
+                <br><br>
+                While this is conceptually similar to redirecting attention heads in a real forward pass, it is much more computationally feasible, as we only need to cache activations from one forward pass, rather than running a separate intervened pass for every image token. The other advantage is that we can observe how information evolves across layers, showing us that information is often already present in layer 0. 
+
                 <h2>Editing Image Perception</h2>
 
-                To show that our lens is reading from features that causally effect the model's outputs, we edit within the subspace read by these verbalization heads, and find that these edits affect model descriptions of images. For example, we can "edit" an image representation to cause Qwen to describe a photo of an ant as an iPod. On a high level, our approach uses the <i>inverse</i> of our verbalization lens to identify directions in activation space that the model decodes as a particular token. We can then subtract the latent vector that corresponds to "ant" from the image, and add in the latent vector corresponding to "iPod".
+                To show that our lens \(\mathbf{L}\) is reading from features that causally effect the model's outputs, we edit within the subspace read by these verbalization heads, and find that these edits affect model descriptions of images. For example, we can "edit" an image representation to cause Qwen to describe a photo of an ant as an iPod. On a high level, our approach uses the <i>inverse</i> of our verbalization lens to identify directions in activation space that the model decodes as a particular token. We can then subtract the latent vector that corresponds to "ant" from the image, and add in the latent vector corresponding to "iPod".
 
                 <figure class="center_image">
                     <img src="images/editing.png" class="bigfig">
                 </figure> 
+
+                See Section 4 in the full paper for details! 
 
                 <h2 id="related-work">Related Work</h2>
 
