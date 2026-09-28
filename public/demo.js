@@ -56,8 +56,8 @@
     }).join('');
     document.getElementById('dmTable').innerHTML =
       '<div class="dm-layer dm-head"></div>' +
-      '<div class="dm-head verbal">Verbalization Lens (ours)</div>' +
-      '<div class="dm-head logit">Logit Lens (baseline)</div>' + rows;
+      '<div class="dm-head verbal">Verbalization Lens</div>' +
+      '<div class="dm-head logit">Logit Lens</div>' + rows;
   }
 
   function renderDefaultPatch() {
@@ -114,7 +114,7 @@
 
   function renderModelTabs() {
     makeTabs('dmModelTabs', Object.keys(DEMO_MODELS), m => m === currentModel,
-             m => `${m}`, m => {
+             m => `${m} (k=${DEMO_MODELS[m].k} OCR heads)`, m => {
       currentModel = m;
       currentImg = Object.keys(DEMO_MODELS[m].images)[0];
       renderImgTabs();

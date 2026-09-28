@@ -17,7 +17,7 @@
     <meta name="twitter:title" content="Using OCR Heads to Verbalize Image Semantics" />
     <meta name="twitter:description"
         content="Webpage for Using OCR Heads to Verbalize Image Semantics (Feucht et al., 2026)." />
-    <meta name="twitter:image" content="https://ocr.baulab.info/images/figure1.png" />
+    <meta name="twitter:image" content="https://ocr.baulab.info/images/figure1_website.png" />
     <link rel="icon" href="favicon.ico?v=2" type="image/x-icon"/>
     <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png">
@@ -44,10 +44,6 @@
         ]});"></script>
 
     <style>
-        :target {
-            background-color: transparent;
-        }
-
         .relatedthumb {
             float: left;
             width: 200px;
@@ -216,16 +212,18 @@
                 Let's say that we have a particular residual stream state \(\mathbf{h}^{(l-1)}\in\mathbb{R}^{d_{model}} \) at layer \(l-1\), and we decide to make all of the \(n\) attention heads at layer \(l\) fully attend to only this hidden state. Then, the contribution of all of these attention heads will look something like this (dropping norms):
 
                 \[
-                \mathbf{W}_O^{(l,0)}\mathbf{W}_V^{(l,0)}\mathbf{h}^{(l-1)} + \mathbf{W}_O^{(l,1)}\mathbf{W}_V^{(l,1)}\mathbf{h}^{(l-1)} + ... + \mathbf{W}_O^{(l,n)}\mathbf{W}_V^{(l,n)}\mathbf{h}^{(l-1)}
+                \mathbf{W}_O^{(l,0)}\mathbf{W}_V^{(l,0)}\mathbf{h}^{(l-1)} + \mathbf{W}_O^{(l,1)}\mathbf{W}_V^{(l,1)}\mathbf{h}^{(l-1)} + ... \mathbf{W}_O^{(l,n)}\mathbf{W}_V^{(l,n)}\mathbf{h}^{(l-1)}
                 \]
 
                 But then, we can see that this is equivalent to just summing together all the OV matrices first, and multiplying by \(\mathbf{h}^{(l-1)}\) only once.
 
                 \[
-                (\mathbf{W}_O^{(l,0)}\mathbf{W}_V^{(l,0)} + \mathbf{W}_O^{(l,1)}\mathbf{W}_V^{(l,1)} + ... + \mathbf{W}_O^{(l,n)}\mathbf{W}_V^{(l,n)})\mathbf{h}^{(l-1)}
+                (\mathbf{W}_O^{(l,0)}\mathbf{W}_V^{(l,0)} + \mathbf{W}_O^{(l,1)}\mathbf{W}_V^{(l,1)} + ... \mathbf{W}_O^{(l,n)}\mathbf{W}_V^{(l,n)})\mathbf{h}^{(l-1)}
                 \]
 
                 Thus, adding together all of these matrices is actually very natural, at least when heads are in the same layer. The one wrinkle is that we actually make the choice to sum together OV matrices for heads across different layers. This means that, in effect, we are allowing heads at e.g., layer 24 attend to hidden states from layer 0. While this may seem odd, it seems to work well in practice, which corroborates evidence from prior work showing that layers are somewhat interchangeable in LLMs (<a href="https://functions.baulab.info">Todd et al., 2024</a>, <a href="https://arxiv.org/pdf/2406.19384">Lad et al., 2025</a>). 
+                
+                <br><br>
                 Once we have this matrix \(\mathbf{L}\), we can apply it to any hidden state \(\mathbf{h}\) to reveal what all the attention heads in \(\mathcal{H}\) would output if they were to fully attend to that state. We then simply apply logit lens to \(\mathbf{Lh}\) instead of "raw" logit lens on \(\mathbf{h}\) to obtain the results shown in this work. 
                 <br><br>
                 While this is conceptually similar to redirecting attention heads in a real forward pass, it is much more computationally feasible, as we only need to cache activations from one forward pass, rather than running a separate intervened pass for every image token. The other advantage is that we can observe how information evolves across layers, showing us that information is often already present in layer 0. 
