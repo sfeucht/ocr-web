@@ -114,7 +114,7 @@
 
   function renderModelTabs() {
     makeTabs('dmModelTabs', Object.keys(DEMO_MODELS), m => m === currentModel,
-             m => `${m} (k=${DEMO_MODELS[m].k} OCR heads)`, m => {
+             m => m, m => {
       currentModel = m;
       currentImg = Object.keys(DEMO_MODELS[m].images)[0];
       renderImgTabs();
